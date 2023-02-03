@@ -3,8 +3,6 @@ GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
 
 ifeq ($(GOHOSTOS), windows)
-	#the `find.exe` is different from `find` in bash/shell.
-	#to see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/find.
 	#changed to use git-bash.exe to run find cli or other cli friendly, caused of every developer has a Git.
 	Git_Bash= $(subst cmd\,bin\bash.exe,$(dir $(shell where git)))
 	INTERNAL_PROTO_FILES=$(shell $(Git_Bash) -c "find internal -name *.proto")
@@ -14,25 +12,49 @@ else
 	API_PROTO_FILES=$(shell find api -name *.proto)
 endif
 
-# generate api proto
+.PHONY: init
+# 自动初始化
+init:
+	go mod tidy
+	make api
+	make ent
+	make wire
+
+.PHONY: install
+# 下载依赖
+install:
+	go mod tidy
+	go install github.com/google/wire/cmd/wire@latest
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
+	make ent
+	make api
+
 .PHONY: api
+# 生成proto
 api:
 	protoc --proto_path=./api \
+	       --proto_path=./third_party \
  	       --go_out=paths=source_relative:./api \
  	       --go-http_out=paths=source_relative:./api \
  	       --go-grpc_out=paths=source_relative:./api \
-	       --openapi_out=fq_schema_naming=true,default_response=false:. \
+	       --openapi_out=fq_schema_naming=true,default_response=false:./api \
 	       $(API_PROTO_FILES)
 
-# generate ent
 .PHONY: ent
+# 自动生成数据库操作代码
 ent:
 	ent generate --target ./internal/data/ent ./internal/data/schema
 
-# generate ent
-.PHONY: init
-init:
-	go mod tidy
-	go install entgo.io/ent/cmd/ent@latest
-	make ent
-	make api
+.PHONY: wire
+# 依赖注入
+wire:
+	cd internal && wire && cd -
+
+ADDR?=0.0.0.0:8000
+
+.PHONY: run
+# 运行项目
+run:
+	go run ./... -addr $(ADDR)

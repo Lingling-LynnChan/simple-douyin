@@ -1,0 +1,14 @@
+server:
+  addr: 0.0.0.0:8000
+data:
+  database:
+    driver: mysql
+    source:
+    maxIdleConns: 10
+    maxOpenConns: 100
+    connMaxLifetime: 60
+  redis:
+    addr: 127.0.0.1
+    network: :6379
+    readTimeout: 0.2
+    writeTimeout: 0.2

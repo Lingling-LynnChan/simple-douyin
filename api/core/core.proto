@@ -1,6 +1,11 @@
 syntax = "proto3";
+
 package douyin.core;
+
+import "google/api/annotations.proto";
+
 option go_package = "douyin-simple/api/core;core";
+
 /*------- feed --------*/
 message douyin_feed_request {
     optional int64 latest_time = 1; // 可选参数，限制返回视频的最新投稿时间戳，精确到秒，不填表示当前时间
@@ -44,4 +49,32 @@ message douyin_user_register_response {
     optional string status_msg = 2; // 返回状态描述
     int64 user_id = 3; //用户id
     string token = 4; // 用户鉴权token
+}
+
+/*------- login --------*/
+message douyin_user_login_request {
+    string username = 1; // 登录用户名
+    string password = 2; // 登录密码
+}
+
+message douyin_user_login_response {
+    int32 status_code = 1; // 状态码，0-成功，其他值-失败
+    optional string status_msg = 2; // 返回状态描述
+    int64 user_id = 3; // 用户id
+    string token = 4; // 用户鉴权token
+}
+
+service Auth{
+    rpc Register (douyin_user_register_request) returns (douyin_user_register_response){
+        option (google.api.http) = {
+            post: "/douyin/user/register",
+            body: "*"
+        };
+    }
+    rpc Login (douyin_user_login_request) returns (douyin_user_login_response){
+        option (google.api.http) = {
+            post: "/douyin/user/login",
+            body: "*"
+        };
+    }
 }
