@@ -1,14 +1,23 @@
-server:
+bootstrap:
   addr: 0.0.0.0:8000
+  app_name: simple-douyin
+  app_owner: tsf
+
+server:
+  static_dir: ./public/
+  static_url: /public
+  is_logger: true
+  is_recover: true
+
 data:
   database:
     driver: mysql
-    source:
-    maxIdleConns: 10
-    maxOpenConns: 100
-    connMaxLifetime: 60
+    source: root:123456@tcp(192.168.0.105:3306)/douyin?charset=utf8mb4&parseTime=True
+    max_idle_conns: 10
+    max_open_conns: 100
+    conn_max_lifetime: 60
   redis:
     addr: 127.0.0.1
     network: :6379
-    readTimeout: 0.2
-    writeTimeout: 0.2
+    read_timeout: 0.2
+    write_timeout: 0.2

@@ -12,14 +12,6 @@ else
 	API_PROTO_FILES=$(shell find api -name *.proto)
 endif
 
-.PHONY: init
-# 自动初始化
-init:
-	go mod tidy
-	make api
-	make ent
-	make wire
-
 .PHONY: install
 # 下载依赖
 install:
@@ -30,6 +22,15 @@ install:
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	make ent
 	make api
+
+.PHONY: init
+# 自动初始化
+init:
+	go mod tidy
+	make api
+	make ent
+	make wire
+	make clean
 
 .PHONY: api
 # 生成proto
@@ -52,9 +53,14 @@ ent:
 wire:
 	cd internal && wire && cd -
 
-ADDR?=0.0.0.0:8000
+.PHONY: clean
+# 清理代码
+clean:
+	gofmt -l -d -w -s .
+
+addr?=0.0.0.0:8000
 
 .PHONY: run
 # 运行项目
 run:
-	go run ./... -addr $(ADDR)
+	go run ./... -addr $(addr)

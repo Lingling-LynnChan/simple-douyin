@@ -14,6 +14,6 @@ import (
 	"github.com/google/wire"
 )
 
-func WireApp(*conf.Server, *conf.Data) *Bootstrapper {
+func WireApp(*conf.Bootstrap, *conf.Server, *conf.Data) *Bootstrapper {
 	panic(wire.Build(server.ProviderSet, data.ProviderSet, usecase.ProviderSet, service.ProviderSet, New))
 }

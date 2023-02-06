@@ -6,6 +6,8 @@ import (
 	"douyin-simple/internal/data/ent"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
+
 	"entgo.io/ent/dialect/sql"
 )
 
@@ -13,7 +15,7 @@ type Data struct {
 	db *ent.Client
 }
 
-func NewData(conf conf.Data) *Data {
+func NewData(conf *conf.Data) *Data {
 	var data = new(Data)
 	drv, err := sql.Open(conf.Database.Driver, conf.Database.Source)
 	if err != nil {
@@ -25,7 +27,7 @@ func NewData(conf conf.Data) *Data {
 	data.db = ent.NewClient(ent.Driver(drv))
 	ctx := context.Background()
 	if err := data.db.Schema.Create(ctx); err != nil {
-		panic("database ")
+		panic("database create err: " + err.Error())
 	}
 	return data
 }

@@ -4,7 +4,6 @@ import (
 	"douyin-simple/internal"
 	"douyin-simple/internal/conf"
 	"flag"
-	"fmt"
 )
 
 var addr *string
@@ -16,9 +15,12 @@ func init() {
 
 func main() {
 	conf := conf.GetConf("configs/config.yaml")
-	bootstrap := internal.WireApp(conf.Server, conf.Data)
-	bootstrap.Bootstrap()
-	fmt.Printf("addr: %v\n", addr)
+	bootstrap := internal.WireApp(
+		conf.Bootstrap,
+		conf.Server,
+		conf.Data,
+	)
+
 	if err := bootstrap.Listen(*addr); err != nil {
 		panic(err)
 	}
